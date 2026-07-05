@@ -12,6 +12,7 @@
 {"language": "markdown", "name": "docs/playbooks.md", "status": "ok", "summary": "Playbooks — every SDLC situation, exact commands", "type": "Doc"}
 {"language": "markdown", "name": "docs/scaling.md", "status": "ok", "summary": "Scaling up — semantic search, embeddings, graph databases", "type": "Doc"}
 {"language": "markdown", "name": "docs/starting-new-projects.md", "status": "ok", "summary": "Starting a new project graph-first", "type": "Doc"}
+{"language": "markdown", "name": "docs/whole-system-graph.md", "status": "ok", "summary": "Modeling the whole architecture — not just code files", "type": "Doc"}
 {"language": "toml", "name": "pyproject.toml", "status": "ok", "summary": "Package metadata; exposes the graphcoding console script; zero runtime dependencies", "type": "ConfigFile"}
 {"edges": [{"to": "src/graphcoding/cli.py", "type": "REFERENCES"}], "language": "markdown", "name": "skill/graphcoding/SKILL.md", "status": "ok", "summary": "GraphCoding — code against the graph", "type": "Doc"}
 {"language": "python", "name": "src/graphcoding/__init__.py", "status": "ok", "summary": "GraphCoding — your repo's living knowledge graph.", "type": "CodeFile"}

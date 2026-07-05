@@ -206,6 +206,40 @@ def test_show_discloses_recorded_only(repo, capsys):
     assert "scanner-visible edges only" not in capsys.readouterr().out
 
 
+def test_manual_edges_survive_rescan_and_sync(repo):
+    run(repo, "init")
+    run(repo, "link", "src/app.py", "CALLS", "db:orders")
+    # edit the file -> sync rescans it; the hand-recorded edge must survive
+    with open(os.path.join(repo, "src", "app.py"), "a") as f:
+        f.write("\nX = 1\n")
+    run(repo, "sync", "--files", "src/app.py")
+    g = Graph.load(repo)
+    assert {"to": "db:orders", "type": "CALLS"} in g.nodes["src/app.py"].edges
+    run(repo, "scan")  # full rescan must preserve it too
+    g = Graph.load(repo)
+    assert {"to": "db:orders", "type": "CALLS"} in g.nodes["src/app.py"].edges
+
+
+def test_external_nodes_db_mcp(repo, capsys):
+    run(repo, "init")
+    run(repo, "plan", "db:orders", "--existing", "-t", "ServiceDef",
+        "-s", "Order ledger; written only by app")
+    run(repo, "plan", "mcp:router::search", "--existing", "-t", "ServiceDef",
+        "-s", "Semantic search tool")
+    g = Graph.load(repo)
+    assert g.nodes["db:orders"].status == "ok"
+    run(repo, "drift", expect_exit=0)          # externals are never ghosts
+    run(repo, "link", "src/app.py", "CALLS", "db:orders")
+    capsys.readouterr()
+    run(repo, "show", "db:orders")
+    assert "src/app.py" in capsys.readouterr().out
+    run(repo, "mark-delete", "db:orders", expect_exit=1)   # caller recorded
+    run(repo, "mark-delete", "mcp:router::search", expect_exit=0)
+    g = Graph.load(repo)
+    assert "mcp:router::search" not in g.nodes  # externals retire immediately
+    run(repo, "drift", expect_exit=0)
+
+
 def test_graph_file_is_sorted_and_stable(repo):
     run(repo, "init")
     p = os.path.join(repo, ".graphcoding", "graph.jsonl")

@@ -14,12 +14,13 @@ from __future__ import annotations
 import os
 
 from .scan import tracked_files
-from .store import Graph
+from .store import Graph, is_external
 
 
 def compute_drift(root: str, cfg: dict, graph: Graph) -> dict:
     disk = set(tracked_files(root, cfg))
-    file_nodes = graph.file_nodes()
+    file_nodes = {k: v for k, v in graph.file_nodes().items()
+                  if not is_external(k, cfg)}
     missing = sorted(disk - set(file_nodes))
     ghosts, unbuilt, not_deleted = [], [], []
     for path, node in sorted(file_nodes.items()):

@@ -52,7 +52,20 @@ DEFAULT_CONFIG = {
     ],
     "ignore_tests": True,
     "scan_symbols": False,
+    # nodes whose names start with these prefixes describe architecture that
+    # is not a repo file — drift never expects one on disk:
+    #   db:     database objects (db:orders, db:settings::llm_provider)
+    #   mcp:    MCP servers and their tools (mcp:router::get_blast_radius)
+    #   svc:    deployed services / processes (svc:api-gateway)
+    #   queue:  queues / topics (queue:invoice-events)
+    #   api:    third-party APIs (api:stripe::charges)
+    #   ext:    anything else outside the repo
+    "external_prefixes": ["db:", "mcp:", "svc:", "queue:", "api:", "ext:"],
 }
+
+
+def is_external(name: str, cfg: dict) -> bool:
+    return any(name.startswith(p) for p in cfg.get("external_prefixes", []))
 
 
 @dataclass

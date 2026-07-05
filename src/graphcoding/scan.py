@@ -235,13 +235,17 @@ def scan_repo(root: str, cfg: dict, graph: Graph) -> dict:
         node, subs = scan_file(root, path, cfg)
         old = graph.nodes.get(path)
         if old:
-            # never clobber intent: keep richer summary and lifecycle statuses
+            # never clobber intent: keep richer summary, lifecycle statuses,
+            # and every hand-recorded edge (scanner owns IMPORTS only)
             if old.summary and not node.summary:
                 node.summary = old.summary
             if len(old.summary) > len(node.summary):
                 node.summary = old.summary
             if old.status == "to-be-deleted":
                 node.status = old.status
+            for e in old.edges:
+                if e["type"] != "IMPORTS":
+                    node.add_edge(e["to"], e["type"])
             updated += 1
         else:
             added += 1

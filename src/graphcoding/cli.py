@@ -100,7 +100,8 @@ def cmd_scan(args) -> None:
 def cmd_plan(args) -> None:
     root = _root_or_die(args)
     g = Graph.load(root)
-    node = Node(name=args.name, type=args.type, status="planned",
+    status = "ok" if args.existing else "planned"
+    node = Node(name=args.name, type=args.type, status=status,
                 summary=args.summary or "")
     for spec in args.edge or []:
         try:
@@ -116,7 +117,7 @@ def cmd_plan(args) -> None:
         sys.exit(f"{args.name} already exists with status={existing.status}; "
                  "use --force to re-plan it")
     if existing:
-        existing.status = "planned"
+        existing.status = status
         if args.summary:
             existing.summary = args.summary
         for e in node.edges:
@@ -124,7 +125,8 @@ def cmd_plan(args) -> None:
     else:
         g.nodes[node.name] = node
     g.save()
-    print(f"planned: {args.name}" + (f" — {args.summary}" if args.summary else ""))
+    verb = "recorded (existing)" if args.existing else "planned"
+    print(f"{verb}: {args.name}" + (f" — {args.summary}" if args.summary else ""))
 
 
 def cmd_link(args) -> None:
@@ -156,6 +158,13 @@ def cmd_mark_delete(args) -> None:
             print(f"  <-[{t}]- {s}")
         sys.exit("refusing to mark for deletion — update the callers first, "
                  "or pass --force if they are part of the same removal")
+    from .store import is_external
+    if is_external(args.name, load_config(root)):
+        # nothing on disk to remove — the declaration itself is retired
+        g.delete(args.name)
+        g.save()
+        print(f"removed external node: {args.name}")
+        return
     node.status = "to-be-deleted"
     g.save()
     print(f"marked to-be-deleted: {args.name} "
@@ -314,11 +323,15 @@ def build_parser() -> argparse.ArgumentParser:
     s.set_defaults(func=cmd_scan)
 
     s = sub.add_parser("plan", help="declare a node you intend to build (DESIGN)")
-    s.add_argument("name", help="repo-relative path, or path::Symbol")
+    s.add_argument("name", help="repo-relative path, path::Symbol, or an external "
+                                "name like db:orders / api:stripe (see external_prefixes)")
     s.add_argument("--summary", "-s", help="one line: what it will do")
     s.add_argument("--type", "-t", default="CodeFile", choices=NODE_TYPES)
     s.add_argument("--edge", "-e", action="append",
                    help="TYPE:target (repeatable), e.g. -e IMPORTS:src/db.py")
+    s.add_argument("--existing", action="store_true",
+                   help="record something that already exists (status ok) — "
+                        "e.g. a live db table or external API")
     s.add_argument("--force", action="store_true")
     s.set_defaults(func=cmd_plan)
 

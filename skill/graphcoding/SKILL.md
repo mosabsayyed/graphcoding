@@ -82,6 +82,7 @@ graphcoding drift           # re-check; must print DRIFT=NONE
 | declare a new file | `graphcoding plan <path> -s "..." -e IMPORTS:<dep>` |
 | record any dependency | `graphcoding link <src> <CALLS\|IMPORTS\|REFERENCES\|...> <dst>` |
 | schedule a removal | `graphcoding mark-delete <path>` |
+| declare non-file architecture (db table, settings row, MCP tool, queue, API) | `graphcoding plan db:orders --existing -s "..."` then `link` its readers/writers |
 | reconcile after changes | `graphcoding sync --staged` (or `--files`, `--commit`) |
 | task list / work state | `graphcoding status` |
 | the done-check | `graphcoding drift` → `DRIFT=NONE` |

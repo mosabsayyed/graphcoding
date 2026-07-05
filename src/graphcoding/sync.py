@@ -73,8 +73,13 @@ def sync(root: str, cfg: dict, graph: Graph,
         else:
             node, subs = scan_file(root, path, cfg)
             old = graph.nodes.get(path)
-            if old and len(old.summary) > len(node.summary):
-                node.summary = old.summary
+            if old:
+                if len(old.summary) > len(node.summary):
+                    node.summary = old.summary
+                # scanner owns IMPORTS; every hand-recorded edge type survives
+                for e in old.edges:
+                    if e["type"] != "IMPORTS":
+                        node.add_edge(e["to"], e["type"])
             graph.nodes[path] = node
             for s in subs:
                 prev = graph.nodes.get(s.name)

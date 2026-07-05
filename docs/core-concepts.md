@@ -102,6 +102,10 @@ It is deliberately **not** a full static analyzer, and this is a feature:
 1. The regenerable layer (imports) is cheap and self-healing — rescan any time.
 2. The valuable layer (summaries, planned/deleted intent, cross-boundary `CALLS`) **cannot come from a scanner** by definition. Tools that promise "we'll extract your architecture automatically" extract structure and call it architecture. GraphCoding is honest about the split: machines maintain structure, minds record intent, the gate keeps both current.
 
+## External nodes — the rest of the architecture
+
+Names starting with a configured prefix (`db:`, `mcp:`, `svc:`, `queue:`, `api:`, `ext:`) declare architecture that is not a repo file — database tables and settings rows, MCP servers and their tools, services, queues, third-party APIs. Drift never expects a file for them; they exist to anchor the edges no scanner can find (`src/checkout.py -[CALLS]-> db:orders`). Created via `plan` (`--existing` for things already live), retired instantly by `mark-delete` (same callers-first safety catch). Full patterns: [whole-system-graph.md](whole-system-graph.md).
+
 ## Namespacing and monorepos
 
 Node names are repo-relative paths, so a monorepo works out of the box (`backend/...`, `frontend/...` are just prefixes). For multi-repo systems, run one graph per repo and record cross-repo `CALLS` edges in the caller's graph using any stable convention for the target name (e.g. `other-repo:path/to/route.py`) — the edge will show as dangling, which is true and useful: it points out of this graph's world.

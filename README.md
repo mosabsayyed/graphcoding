@@ -131,6 +131,7 @@ The [playbooks](docs/playbooks.md) give the exact command sequence for each case
 | [Core concepts](docs/core-concepts.md) | nodes, edges, statuses, the graph file format |
 | [The loop](docs/lifecycle.md) | QUERY → DESIGN → CODE → SYNC → VERIFY, in depth |
 | [Playbooks](docs/playbooks.md) | every SDLC situation, exact commands |
+| [The whole architecture](docs/whole-system-graph.md) | db schema, settings tables, MCP servers, queues, external APIs as graph nodes |
 | [Migrating an existing repo](docs/migrating-existing-repos.md) | zero to gated in an afternoon |
 | [Starting a new project](docs/starting-new-projects.md) | graph-first greenfield |
 | [AI agents](docs/agents.md) | Claude Code, Cursor, Copilot, custom harnesses |
