@@ -326,7 +326,8 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("name", help="repo-relative path, path::Symbol, or an external "
                                 "name like db:orders / api:stripe (see external_prefixes)")
     s.add_argument("--summary", "-s", help="one line: what it will do")
-    s.add_argument("--type", "-t", default="CodeFile", choices=NODE_TYPES)
+    s.add_argument("--type", "-t", default="CodeFile",
+                   help=f"free-form; common: {', '.join(NODE_TYPES)}")
     s.add_argument("--edge", "-e", action="append",
                    help="TYPE:target (repeatable), e.g. -e IMPORTS:src/db.py")
     s.add_argument("--existing", action="store_true",

@@ -2,18 +2,24 @@
 
 Code files are one node species. Real systems break at the joints code scanners can't see: the database schema, the settings table that steers runtime behavior, the MCP server an agent calls, the queue between two services, the third-party API. GraphCoding models all of it in the same graph, with the same lifecycle, queried by the same commands.
 
-## External nodes
+## The open classification: code, or another system
 
-Any node whose name starts with a configured prefix (`external_prefixes` in `.graphcoding/config.json`) describes something that is **not a file in this repo**. The drift gate never expects a file for it — it's a declaration, versioned and reviewable like everything else.
+One binary rule, deliberately open-ended:
 
-| Prefix | For | Examples |
-|---|---|---|
-| `db:` | database objects | `db:orders`, `db:settings`, `db:v_revenue_daily` |
-| `mcp:` | MCP servers + tools | `mcp:router`, `mcp:router::get_blast_radius` |
-| `svc:` | deployed services / processes | `svc:api-gateway`, `svc:worker-pool` |
-| `queue:` | queues, topics, streams | `queue:invoice-events` |
-| `api:` | third-party APIs | `api:stripe`, `api:stripe::charges` |
-| `ext:` | anything else outside the repo | `ext:s3-media-bucket` |
+- **Code** — the name is a repo-relative file path (`src/app.py`, optionally `::Symbol`). Scanned automatically, drift-gated against disk.
+- **Another system** — the name carries a scheme, `anything:` (like a URI). Never expected on disk; it's a declaration, versioned and reviewable like everything else.
+
+The scheme vocabulary is **yours to invent** — GraphCoding imposes nothing. Whatever your system touches can be absorbed into the graph:
+
+| Scheme (examples, not a fixed list) | For |
+|---|---|
+| `db:` | database objects — `db:orders`, `db:settings::llm_provider` |
+| `mcp:` | MCP servers + tools — `mcp:router::get_blast_radius` |
+| `svc:` / `queue:` / `api:` | services, queues, third-party APIs |
+| `erp:`, `sensor:`, `sap:` … | whatever your world contains — `erp:sap::orders`, `sensor:plant-7` |
+| `team:`, `doc:`, `policy:` | even non-technical anchors, if edges to them carry design weight |
+
+Node *types* are equally open — `-t` accepts any word; the built-in names (`CodeFile`, `ServiceDef`, …) are conventions, not a schema.
 
 The `::` convention scales down inside externals exactly as it does inside files: a table is `db:orders`, one *load-bearing row* of a settings table is `db:settings::llm_provider`, one tool of an MCP server is `mcp:router::get_root_cause`.
 

@@ -238,6 +238,13 @@ def test_external_nodes_db_mcp(repo, capsys):
     g = Graph.load(repo)
     assert "mcp:router::search" not in g.nodes  # externals retire immediately
     run(repo, "drift", expect_exit=0)
+    # the classification is OPEN — any invented scheme and type work
+    run(repo, "plan", "erp:sap::orders", "--existing", "-t", "ErpObject",
+        "-s", "SAP order master; synced nightly")
+    run(repo, "link", "src/app.py", "REFERENCES", "erp:sap::orders")
+    run(repo, "drift", expect_exit=0)
+    g = Graph.load(repo)
+    assert g.nodes["erp:sap::orders"].type == "ErpObject"
 
 
 def test_graph_file_is_sorted_and_stable(repo):

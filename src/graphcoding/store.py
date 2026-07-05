@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from dataclasses import dataclass, field
 
 NODE_TYPES = [
@@ -52,20 +53,20 @@ DEFAULT_CONFIG = {
     ],
     "ignore_tests": True,
     "scan_symbols": False,
-    # nodes whose names start with these prefixes describe architecture that
-    # is not a repo file — drift never expects one on disk:
-    #   db:     database objects (db:orders, db:settings::llm_provider)
-    #   mcp:    MCP servers and their tools (mcp:router::get_blast_radius)
-    #   svc:    deployed services / processes (svc:api-gateway)
-    #   queue:  queues / topics (queue:invoice-events)
-    #   api:    third-party APIs (api:stripe::charges)
-    #   ext:    anything else outside the repo
-    "external_prefixes": ["db:", "mcp:", "svc:", "queue:", "api:", "ext:"],
 }
 
+# The classification is OPEN and binary: a node is either CODE (a repo-relative
+# file path — scanned, drift-gated) or ANOTHER SYSTEM (any "scheme:" name —
+# declared, never expected on disk). Invent whatever schemes fit your world:
+# db:orders, mcp:router::search, svc:gateway, erp:sap::orders, team:payments,
+# sensor:plant-7. The scheme is yours; the lifecycle and edges are the same.
+_SCHEME = re.compile(r"^[A-Za-z][A-Za-z0-9_.+-]*:(?!//)")
 
-def is_external(name: str, cfg: dict) -> bool:
-    return any(name.startswith(p) for p in cfg.get("external_prefixes", []))
+
+def is_external(name: str, cfg: dict | None = None) -> bool:
+    """True for 'scheme:...' names (non-file architecture). File paths never
+    carry a scheme; URLs (scheme://) are also treated as external."""
+    return bool(_SCHEME.match(name)) or "://" in name
 
 
 @dataclass

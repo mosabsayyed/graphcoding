@@ -104,7 +104,7 @@ It is deliberately **not** a full static analyzer, and this is a feature:
 
 ## External nodes — the rest of the architecture
 
-Names starting with a configured prefix (`db:`, `mcp:`, `svc:`, `queue:`, `api:`, `ext:`) declare architecture that is not a repo file — database tables and settings rows, MCP servers and their tools, services, queues, third-party APIs. Drift never expects a file for them; they exist to anchor the edges no scanner can find (`src/checkout.py -[CALLS]-> db:orders`). Created via `plan` (`--existing` for things already live), retired instantly by `mark-delete` (same callers-first safety catch). Full patterns: [whole-system-graph.md](whole-system-graph.md).
+The classification is open and binary: a name that is a repo-relative path is **code** (scanned, drift-gated); a name with a scheme — `anything:` — is **another system** (declared, never expected on disk). Invent schemes for whatever your system touches: `db:orders`, `db:settings::llm_provider`, `mcp:router::get_blast_radius`, `svc:gateway`, `erp:sap::orders`. They exist to anchor the edges no scanner can find (`src/checkout.py -[CALLS]-> db:orders`). Created via `plan` (`--existing` for things already live), retired instantly by `mark-delete` (same callers-first safety catch). Full patterns: [whole-system-graph.md](whole-system-graph.md).
 
 ## Namespacing and monorepos
 
