@@ -51,8 +51,6 @@ GraphCoding is that layer, with a gate on it — and only that layer, on purpose
 
 ```bash
 pip install graphcoding        # or: pipx install graphcoding
-# until the first PyPI release lands:
-# pip install git+https://github.com/mosabsayyed/graphcoding
 
 cd your-repo
 graphcoding init --hooks       # scan the repo into a graph + install the gate
