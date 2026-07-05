@@ -80,9 +80,34 @@ The sneakiest dependency class in modern systems: behavior steered by *rows*, no
 
 Now "can I change this config row?" has a blast radius, config-driven behavior shows up in design review, and a prompt-in-a-table (the standard pattern for LLM apps) is a first-class architectural element instead of invisible state.
 
+### Environments — dev, staging, prod
+
+The third category after code and systems: **where things run**. Environments are declared nodes (`env:dev`, `env:staging`, `env:prod`) whose summaries carry the facts that prevent disasters — who may deploy, what is read-only, where it lives:
+
+```bash
+graphcoding plan env:prod --existing -t Environment \
+  -s "Production (prod.example.com). READ-ONLY for agents; deploys only via ops/deploy.sh after staging sign-off"
+graphcoding plan env:staging --existing -t Environment \
+  -s "Staging; safe for agent experiments; wiped weekly"
+
+# topology and promotion path as edges
+graphcoding link svc:api-gateway DEPLOYED_IN env:prod
+graphcoding link env:dev     PROMOTES_TO env:staging
+graphcoding link env:staging PROMOTES_TO env:prod
+```
+
+Conventions that keep it clean:
+
+- **Code is environment-agnostic** — the same file ships everywhere, so file nodes never carry an environment. Environments attach to the *deployed* things: services, databases, config.
+- **Qualify instances only where environments genuinely differ**: if staging and prod share a schema, one `db:orders` is right; if an instance difference carries design weight, nest schemes — `prod:db:orders`, `staging:db:orders` (any `scheme:` chain is a valid external name).
+- **Config divergence is the usual suspect**: `db:settings::llm_provider` reading differently per env is exactly what `CONFIGURES` edges from env nodes are for.
+- **Agent guardrail**: the skill tells agents to `show env:*` before any deploy/restart/migration — the environment's rules ("read-only", "deploys via X only") reach the agent as a query result at the moment it matters, not as a memory of a memory.
+
 ### MCP servers and agent tooling
 
-Agent-era systems have a new joint: which code and which workflows depend on which MCP tools. Declare each server (`mcp:router --existing`) and each tool that matters (`mcp:router::semantic_search`), then `link` every consumer — including *skills and agent configs*, which are file nodes already (`.claude/skills/reviewer/SKILL.md CALLS mcp:router::semantic_search`).
+MCP has two faces, classified differently. The **tool as a capability** — what agents and code call — is a declared system node (`mcp:router::semantic_search`), because consumers depend on the interface, which outlives file renames. The **server's source**, if it lives in your repo, is ordinary code nodes. The join is an edge: `mcp:router::semantic_search -[IMPLEMENTED_BY]-> mcp-server/src/tools.py` — so changing the implementation walks the blast radius through the declaration to every consumer. Third-party MCP you don't host has only the first face.
+
+Declare each server (`mcp:router --existing`) and each tool that matters, then `link` every consumer — including *skills and agent configs*, which are file nodes already (`.claude/skills/reviewer/SKILL.md CALLS mcp:router::semantic_search`).
 
 Payoff: renaming or retiring an MCP tool stops being a grep-across-repos gamble. `show mcp:router::semantic_search` lists every dependent skill, workflow, and module; `mark-delete` refuses until they're rewired. Your agent infrastructure gets the same deletion safety as your code.
 

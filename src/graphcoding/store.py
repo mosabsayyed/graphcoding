@@ -29,10 +29,16 @@ NODE_TYPES = [
     "Component", "Hook", "TypeDef", "ServiceDef", "ConfigFile", "Doc",
 ]
 
+# Common edge vocabulary — conventions, not a schema. Any UPPER_SNAKE word is
+# a valid edge type (DEPLOYED_IN, PROMOTES_TO, MIRRORS, OWNS, ...). The
+# scanner owns IMPORTS; everything else is human/agent vocabulary.
 EDGE_TYPES = [
     "IMPORTS", "CALLS", "CONTAINS", "INHERITS", "IMPLEMENTS",
     "REFERENCES", "DEPENDS_ON", "RELATED_TO",
+    "DEPLOYED_IN", "PROMOTES_TO", "CONFIGURES",
 ]
+
+EDGE_TYPE_RE = re.compile(r"^[A-Z][A-Z0-9_]*$")
 
 STATUSES = ["ok", "planned", "needs-analysis", "to-be-deleted"]
 

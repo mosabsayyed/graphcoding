@@ -247,6 +247,23 @@ def test_external_nodes_db_mcp(repo, capsys):
     assert g.nodes["erp:sap::orders"].type == "ErpObject"
 
 
+def test_environments_and_open_edge_types(repo, capsys):
+    run(repo, "init")
+    run(repo, "plan", "env:prod", "--existing", "-t", "Environment",
+        "-s", "Production. READ-ONLY for agents; deploys via ops/deploy.sh")
+    run(repo, "plan", "env:staging", "--existing", "-t", "Environment",
+        "-s", "Staging; safe for experiments")
+    run(repo, "link", "env:staging", "PROMOTES_TO", "env:prod")   # open edge type
+    run(repo, "plan", "svc:api", "--existing", "-t", "ServiceDef",
+        "-s", "API service", "-e", "DEPLOYED_IN:env:prod")
+    run(repo, "link", "src/app.py", "BAD!TYPE", "env:prod", expect_exit=1)
+    run(repo, "drift", expect_exit=0)
+    capsys.readouterr()
+    run(repo, "show", "env:prod")
+    out = capsys.readouterr().out
+    assert "READ-ONLY" in out and "PROMOTES_TO" in out and "DEPLOYED_IN" in out
+
+
 def test_graph_file_is_sorted_and_stable(repo):
     run(repo, "init")
     p = os.path.join(repo, ".graphcoding", "graph.jsonl")

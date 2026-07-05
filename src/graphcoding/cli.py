@@ -21,8 +21,9 @@ import sys
 from . import __version__
 from .drift import blocking_count, compute_drift, format_report
 from .scan import scan_repo, trackable
-from .store import (DEFAULT_CONFIG, EDGE_TYPES, GRAPH_DIR, NODE_TYPES, Graph,
-                    Node, config_path, find_root, load_config)
+from .store import (DEFAULT_CONFIG, EDGE_TYPE_RE, EDGE_TYPES, GRAPH_DIR,
+                    NODE_TYPES, Graph, Node, config_path, find_root,
+                    load_config)
 from .sync import sync as run_sync
 from . import hooks as hooks_mod
 
@@ -109,8 +110,9 @@ def cmd_plan(args) -> None:
         except ValueError:
             sys.exit(f"bad --edge '{spec}' (want TYPE:target, e.g. IMPORTS:src/db.py)")
         etype = etype.upper()
-        if etype not in EDGE_TYPES:
-            sys.exit(f"unknown edge type {etype} (one of {', '.join(EDGE_TYPES)})")
+        if not EDGE_TYPE_RE.match(etype):
+            sys.exit(f"bad edge type {etype} (UPPER_SNAKE word; common: "
+                     f"{', '.join(EDGE_TYPES)})")
         node.add_edge(target, etype)
     existing = g.nodes.get(args.name)
     if existing and existing.status != "planned" and not args.force:
@@ -136,8 +138,9 @@ def cmd_link(args) -> None:
     if not src:
         sys.exit(f"unknown source node {args.source} (plan or scan it first)")
     etype = args.type.upper()
-    if etype not in EDGE_TYPES:
-        sys.exit(f"unknown edge type {etype} (one of {', '.join(EDGE_TYPES)})")
+    if not EDGE_TYPE_RE.match(etype):
+        sys.exit(f"bad edge type {etype} (UPPER_SNAKE word; common: "
+                 f"{', '.join(EDGE_TYPES)})")
     added = src.add_edge(args.target, etype)
     g.save()
     note = "" if args.target in g.nodes else "  (target not in graph yet — planned work)"
