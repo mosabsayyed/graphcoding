@@ -1,0 +1,16 @@
+# GraphCoding rules — this repo codes against its knowledge graph
+
+- Before editing any file, run `graphcoding show <path>` and read its summary and
+  incoming edges (blast radius). Do not edit files whose blast radius you have not seen.
+- Before creating any file, run `graphcoding plan <path> -s "<one-line intent>"`
+  with `-e IMPORTS:<dep>` edges. Do not create files that are not planned.
+- Before deleting any file, run `graphcoding mark-delete <path>`. If it refuses
+  (callers exist), rewire the callers first.
+- Record dependencies static analysis cannot see (HTTP calls, queues, cron→table)
+  with `graphcoding link <src> CALLS <dst>`.
+- Before every commit, run `graphcoding sync --staged` and include
+  `.graphcoding/graph.jsonl` in the commit. Never use `git commit --no-verify`.
+- A task is done only when `graphcoding drift` prints `DRIFT=NONE` and
+  `graphcoding status` shows no planned/to-be-deleted items from the task.
+- If the graph disagrees with the code, fix the graph immediately
+  (`graphcoding sync --files <path>`), never work around it.

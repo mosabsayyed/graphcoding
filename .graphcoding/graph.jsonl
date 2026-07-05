@@ -1,0 +1,23 @@
+{"language": "yaml", "name": ".github/workflows/ci.yml", "status": "ok", "type": "ConfigFile"}
+{"language": "markdown", "name": "CONTRIBUTING.md", "status": "ok", "summary": "Contributing", "type": "Doc"}
+{"language": "markdown", "name": "README.md", "status": "ok", "summary": "GraphCoding", "type": "Doc"}
+{"language": "markdown", "name": "docs/agents.md", "status": "ok", "summary": "GraphCoding for AI agents", "type": "Doc"}
+{"language": "markdown", "name": "docs/core-concepts.md", "status": "ok", "summary": "Core concepts", "type": "Doc"}
+{"language": "markdown", "name": "docs/drift.md", "status": "ok", "summary": "Drift — detection and enforcement", "type": "Doc"}
+{"language": "markdown", "name": "docs/faq.md", "status": "ok", "summary": "FAQ — the fair objections", "type": "Doc"}
+{"language": "markdown", "name": "docs/lifecycle.md", "status": "ok", "summary": "The loop: QUERY → DESIGN → CODE → SYNC → VERIFY", "type": "Doc"}
+{"language": "markdown", "name": "docs/manifesto.md", "status": "ok", "summary": "The GraphCoding Manifesto", "type": "Doc"}
+{"language": "markdown", "name": "docs/migrating-existing-repos.md", "status": "ok", "summary": "Migrating an existing repo", "type": "Doc"}
+{"language": "markdown", "name": "docs/playbooks.md", "status": "ok", "summary": "Playbooks — every SDLC situation, exact commands", "type": "Doc"}
+{"language": "markdown", "name": "docs/scaling.md", "status": "ok", "summary": "Scaling up — semantic search, embeddings, graph databases", "type": "Doc"}
+{"language": "markdown", "name": "docs/starting-new-projects.md", "status": "ok", "summary": "Starting a new project graph-first", "type": "Doc"}
+{"language": "toml", "name": "pyproject.toml", "status": "ok", "type": "ConfigFile"}
+{"language": "markdown", "name": "skill/graphcoding/SKILL.md", "status": "ok", "summary": "GraphCoding — code against the graph", "type": "Doc"}
+{"language": "python", "name": "src/graphcoding/__init__.py", "status": "ok", "summary": "GraphCoding — your repo's living knowledge graph.", "type": "CodeFile"}
+{"edges": [{"to": "src/graphcoding/__init__.py", "type": "IMPORTS"}, {"to": "src/graphcoding/drift.py", "type": "IMPORTS"}, {"to": "src/graphcoding/hooks.py", "type": "IMPORTS"}, {"to": "src/graphcoding/scan.py", "type": "IMPORTS"}, {"to": "src/graphcoding/store.py", "type": "IMPORTS"}, {"to": "src/graphcoding/sync.py", "type": "IMPORTS"}], "language": "python", "name": "src/graphcoding/cli.py", "status": "ok", "summary": "graphcoding — the CLI.", "type": "CodeFile"}
+{"edges": [{"to": "src/graphcoding/scan.py", "type": "IMPORTS"}, {"to": "src/graphcoding/store.py", "type": "IMPORTS"}], "language": "python", "name": "src/graphcoding/drift.py", "status": "ok", "summary": "Drift detection — compare the working tree against the graph.", "type": "CodeFile"}
+{"language": "python", "name": "src/graphcoding/hooks.py", "status": "ok", "summary": "Git hook installer — the enforcement layer.", "type": "CodeFile"}
+{"edges": [{"to": "src/graphcoding/store.py", "type": "IMPORTS"}], "language": "python", "name": "src/graphcoding/scan.py", "status": "ok", "summary": "Scanner — turn source files into graph nodes and import edges.", "type": "CodeFile"}
+{"language": "python", "name": "src/graphcoding/store.py", "status": "ok", "summary": "Graph store — the in-repo knowledge graph.", "type": "CodeFile"}
+{"edges": [{"to": "src/graphcoding/drift.py", "type": "IMPORTS"}, {"to": "src/graphcoding/scan.py", "type": "IMPORTS"}, {"to": "src/graphcoding/store.py", "type": "IMPORTS"}], "language": "python", "name": "src/graphcoding/sync.py", "status": "ok", "summary": "Sync — reconcile the graph with a set of changed files.", "type": "CodeFile"}
+{"language": "yaml", "name": "templates/github-action-drift.yml", "status": "ok", "summary": "GraphCoding drift gate — copy to .github/workflows/graphcoding.yml", "type": "ConfigFile"}

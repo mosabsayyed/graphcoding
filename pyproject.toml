@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "graphcoding"
+version = "0.1.0"
+description = "Your repo's living knowledge graph — the design contract humans and AI agents code against. Query, plan, sync, and gate commits on drift."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Mosab Sayyed" }]
+keywords = [
+  "knowledge-graph", "ai-agents", "llm", "code-graph", "methodology",
+  "developer-tools", "claude", "copilot", "drift-detection",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Topic :: Software Development :: Quality Assurance",
+  "Topic :: Software Development :: Documentation",
+]
+
+[project.urls]
+Homepage = "https://github.com/mosabsayyed/graphcoding"
+Documentation = "https://github.com/mosabsayyed/graphcoding/tree/main/docs"
+Issues = "https://github.com/mosabsayyed/graphcoding/issues"
+
+[project.scripts]
+graphcoding = "graphcoding.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

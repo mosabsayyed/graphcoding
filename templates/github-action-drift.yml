@@ -1,0 +1,20 @@
+# GraphCoding drift gate — copy to .github/workflows/graphcoding.yml
+# Make it a required status check: nothing that drifts from the graph can merge.
+name: graphcoding
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install graphcoding
+      - name: drift gate (code vs graph)
+        run: graphcoding drift

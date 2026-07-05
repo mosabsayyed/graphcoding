@@ -1,0 +1,19 @@
+# GraphCoding (NON-NEGOTIABLE — the only way to code in this repo)
+
+This repo's knowledge graph (`.graphcoding/graph.jsonl`, CLI: `graphcoding`) is the
+source of truth: what exists, what it's for, who depends on what. Every coding task:
+
+1. **QUERY** — before opening any file: `graphcoding show <path>` (summary +
+   blast radius). Session start: `graphcoding status`. Never edit blind; never
+   substitute grep for the graph.
+2. **DESIGN → graph** — before writing code: `graphcoding plan <path> -s "<intent>"`
+   for each new file, `graphcoding link` for each new dependency (including
+   cross-boundary CALLS), `graphcoding mark-delete` for each removal.
+3. **CODE → per graph** — build only planned nodes; `graphcoding status` is the
+   task list. Unplanned file needed? Plan it first.
+4. **SYNC** — every commit: `graphcoding sync --staged`. Never `--no-verify`.
+5. **VERIFY** — done = `graphcoding status` clean for your task AND
+   `graphcoding drift` prints `DRIFT=NONE`. Paste that output when reporting done.
+
+On drift: reconcile incrementally (`graphcoding sync`, re-check) — NEVER rebuild
+the graph from scratch; it holds human-recorded intent that cannot be regenerated.
