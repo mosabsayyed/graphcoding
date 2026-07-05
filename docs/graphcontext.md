@@ -13,7 +13,7 @@ Ask three questions of any line in your monolith:
 3. *Is it a verb — a procedure followed while doing X?* → **Skill.** Loaded on demand, not at boot.
 4. *Is it about which of the above to load, and when?* → **Trigger data.** Dispatch tables are graph edges wearing a prose costume.
 
-`graphcoding ctx cleanse CLAUDE.md` runs this audit mechanically — classifies every block, tells you what stays and where the rest goes. (Run on the production file this was extracted from: 13 blocks → 10 constitution; a state block, a dispatch table, and an embedded procedure moved out.)
+`graphcoding ctx cleanse CLAUDE.md` prepares this audit — it splits the blocks, surfaces mechanical *signals* (dates, tables, numbered steps) as hints, and prints the rubric. **The classification itself is the agent's semantic judgment, deliberately not the tool's**: block-classification cannot be honestly encoded as patterns, and a tool that pretends otherwise ships fraudulent confidence. The agent judges each block per the rubric and records the moves with `ctx add`. (Run agent-led on the production file this was extracted from: 13 blocks → 10 constitution; a state block, a dispatch table, and an embedded procedure moved out.)
 
 ## The cure: context as a graph with lifecycle
 
@@ -67,4 +67,4 @@ Run against a real 209-memory agent setup, the graph audit found: 25% of memorie
 
 ## Honest limits
 
-Same as the code side, stated plainly: statuses are flipped by minds, not magic — the graph makes truth *cheap to record and impossible to half-remember*, but a human (or agent) still closes the loop. Hooks can lie like any prose; `ctx health` finds hookless and orphaned nodes but can't verify meaning. And the boot output is a summary by design — agents must fetch detail on demand rather than trust a hook for specifics. The claim is not "context maintains itself"; it's "context finally has a write path cheaper than the rot."
+Same as the code side, stated plainly: statuses are flipped by minds, not magic — the graph makes truth *cheap to record and impossible to half-remember*, but a human (or agent) still closes the loop. Hooks can lie like any prose; `ctx health` finds hookless and orphaned nodes but can't verify meaning. And the boot output is a summary by design — agents must fetch detail on demand rather than trust a hook for specifics. The claim is not "context maintains itself"; it's "context finally has a write path cheaper than the rot." And one boundary is absolute by design: **deterministic tools here do enumeration, bookkeeping, and gating; every semantic judgment — classifying a block, writing a summary, confirming staleness — belongs to a mind (human or LLM). Wherever this product appears to automate judgment, read closer: it scaffolds it.**

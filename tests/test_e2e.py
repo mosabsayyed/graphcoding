@@ -289,7 +289,9 @@ def test_graphcontext_loop(repo, capsys, tmp_path):
     run(repo, "ctx", "--file", cf, "health", expect_exit=0)
 
 
-def test_ctx_cleanse_classifies(repo, capsys, tmp_path):
+def test_ctx_cleanse_is_scaffolding_not_judge(repo, capsys, tmp_path):
+    """cleanse must emit blocks + signals + rubric and render NO verdicts —
+    classification is the agent's job (semantic judgment can't be regex)."""
     md = tmp_path / "CLAUDE.md"
     md.write_text(
         "# Rules\nAlways verify before claiming done.\n\n"
@@ -299,8 +301,11 @@ def test_ctx_cleanse_classifies(repo, capsys, tmp_path):
     capsys.readouterr()
     run(repo, "ctx", "cleanse", str(md), expect_exit=0)
     out = capsys.readouterr().out
-    assert "CONSTITUTION (1)" in out and "STATE (1)" in out
-    assert "TRIGGER (1)" in out and "PROCEDURE (1)" in out
+    assert "4 blocks" in out and "RUBRIC" in out
+    assert "signals: dates" in out and "signals: table" in out
+    assert "numbered-steps" in out
+    # no verdict language — the tool must not classify
+    assert "CONSTITUTION (" not in out and "STATE (" not in out
 
 
 def test_ctx_preserves_markdown_header(repo, tmp_path):

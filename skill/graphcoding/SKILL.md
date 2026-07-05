@@ -91,6 +91,16 @@ graphcoding drift           # re-check; must print DRIFT=NONE
 | session start (if a context graph exists) | `graphcoding ctx boot [--role R --task T]` |
 | record knowledge / close work / kill a practice | `graphcoding ctx add / done / retire` |
 
+## Cleansing a context monolith (agent-led — the tool never judges)
+
+`graphcoding ctx cleanse <CLAUDE.md>` gives you a work-order: every block, with
+mechanical signals as hints and the rubric. Classification is YOUR semantic
+judgment — read each block and decide: constitution (stays), state (`ctx add`),
+trigger (`ctx add -t trigger`), procedure (move to a skill). Signals are hints,
+never verdicts; when unsure, it is NOT constitution. Apply decisions with `ctx
+add`/file edits, then re-read the slimmed monolith cold to verify it still
+stands alone as law.
+
 Blast-radius honesty: `show` lists **recorded** edges. If it prints the
 "scanner-visible edges only" caveat, runtime/cross-boundary callers may exist
 unrecorded — verify once, then `graphcoding link` what you find so the next

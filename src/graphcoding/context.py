@@ -167,55 +167,52 @@ class ContextGraph:
         return "\n".join(out)
 
 
-# -- monolith cleanser --------------------------------------------------------
-# status markers count only in their emphatic form — lowercase "done" is prose
-_STATE_CS = re.compile(r"\b(DONE|SHELVED|RETIRED|IN-FLIGHT|BUILT|DEPLOYED|LOCKED)\b")
-_STATE_CI = re.compile(r"20\d\d-\d\d|\bpending\b|\bdeployed 20|\d+ (files|nodes|keys|tests|KPIs)",
-                       re.I)
-class _StateRe:
-    @staticmethod
-    def search(s):
-        return _STATE_CS.search(s) or _STATE_CI.search(s)
-STATE_RE = _StateRe()
-TRIGGER_ROW_RE = re.compile(r"^\s*\|.*\|.*\|")
-NUM_STEP_RE = re.compile(r"^\s*\d+[.)]\s")
+# -- monolith cleanser: SCAFFOLDING ONLY --------------------------------------
+# Classifying a context block (constitution vs state vs procedure vs trigger)
+# is SEMANTIC JUDGMENT — it is the LLM agent's job and cannot be encoded as
+# patterns without silently fraudulent results on unfamiliar files. This tool
+# therefore only: splits blocks, surfaces mechanical SIGNALS as hints, and
+# prints the rubric. The agent running the cleanse decides each block and
+# records decisions with `ctx add` / by editing the constitution file.
+_DATE_RE = re.compile(r"20\d\d-\d\d")
+_CAPS_STATUS_RE = re.compile(r"\b(DONE|SHELVED|RETIRED|IN-FLIGHT|BUILT|DEPLOYED|LOCKED)\b")
+_TABLE_ROW_RE = re.compile(r"^\s*\|.*\|.*\|")
+_NUM_STEP_RE = re.compile(r"^\s*\d+[.)]\s")
+
+RUBRIC = """RUBRIC (decide EACH block yourself — signals are hints, not verdicts):
+  CONSTITUTION  statusless law, true year-round, violating it corrupts the rest
+                -> stays in the monolith
+  STATE         has a lifecycle (can become done/stale/superseded)
+                -> ctx add <name> -t project|reference --hook "..."
+  TRIGGER       'when X, load/do Y' dispatch knowledge
+                -> ctx add <name> -t trigger --hook "when X -> Y"
+  PROCEDURE     a verb: steps followed while doing a task
+                -> move to a skill file, loaded on demand
+A block can mix kinds — split it. When unsure, it is NOT constitution."""
 
 
 def cleanse(md_path: str) -> str:
-    """Audit a monolithic context file (CLAUDE.md / AGENTS.md): classify each
-    block as constitution (stays) / state (→ ctx add) / trigger (→ edges) /
-    procedure (→ skill). Report only — never edits the file."""
+    """Prepare a monolith for agent-led cleansing: blocks + signals + rubric.
+    Deliberately renders NO verdicts — see RUBRIC and the skill workflow."""
     text = open(md_path, encoding="utf-8").read()
-    blocks = re.split(r"\n\s*\n", text)
-    buckets = {"constitution": [], "state": [], "trigger": [], "procedure": []}
-    for b in blocks:
-        if not b.strip():
-            continue
+    blocks = [b for b in re.split(r"\n\s*\n", text) if b.strip()]
+    out = [f"=== cleanse work-order: {md_path} — {len(blocks)} blocks ===",
+           "Classification is LLM work. Read each block, judge per rubric,",
+           "record STATE/TRIGGER via `ctx add`, move PROCEDURE to skills,",
+           "leave only CONSTITUTION in the file.", "", RUBRIC, ""]
+    for i, b in enumerate(blocks, 1):
         lines = b.splitlines()
         first = next((l.strip() for l in lines if l.strip()), "")[:76]
-        rows = sum(1 for l in lines if TRIGGER_ROW_RE.match(l))
-        steps = sum(1 for l in lines if NUM_STEP_RE.match(l))
-        if rows >= 3:
-            buckets["trigger"].append(first)
-        elif steps >= 3:
-            buckets["procedure"].append(first)
-        elif STATE_RE.search(b):
-            buckets["state"].append(first)
-        else:
-            buckets["constitution"].append(first)
-    total = sum(len(v) for v in buckets.values())
-    out = [f"=== cleanse audit: {md_path} — {total} blocks ==="]
-    verdict = {
-        "constitution": "STAYS (statusless law)",
-        "state": "-> ctx add (has a lifecycle; will rot here)",
-        "trigger": "-> trigger nodes/edges (dispatch is graph data)",
-        "procedure": "-> a skill (it's a verb, load on demand)",
-    }
-    for k in ("constitution", "state", "trigger", "procedure"):
-        out.append(f"\n{k.upper()} ({len(buckets[k])}) {verdict[k]}")
-        for f in buckets[k]:
-            out.append(f"   · {f}")
-    keep = len(buckets["constitution"])
-    out.append(f"\nafter cleanse: {keep}/{total} blocks remain — "
-               "the constitution; everything else becomes queryable.")
+        signals = []
+        if any(_TABLE_ROW_RE.match(l) for l in lines):
+            signals.append("table")
+        if sum(1 for l in lines if _NUM_STEP_RE.match(l)) >= 3:
+            signals.append("numbered-steps")
+        if _DATE_RE.search(b):
+            signals.append("dates")
+        if _CAPS_STATUS_RE.search(b):
+            signals.append("status-words")
+        out.append(f"[{i:02d}] {first}")
+        out.append(f"     signals: {', '.join(signals) or 'none'}   "
+                   f"({len(lines)} lines)")
     return "\n".join(out)
