@@ -88,6 +88,8 @@ graphcoding drift           # re-check; must print DRIFT=NONE
 | task list / work state | `graphcoding status` |
 | the done-check | `graphcoding drift` → `DRIFT=NONE` |
 | memory quality (stale summaries, orphans) | `graphcoding health` |
+| session start (if a context graph exists) | `graphcoding ctx boot [--role R --task T]` |
+| record knowledge / close work / kill a practice | `graphcoding ctx add / done / retire` |
 
 Blast-radius honesty: `show` lists **recorded** edges. If it prints the
 "scanner-visible edges only" caveat, runtime/cross-boundary callers may exist

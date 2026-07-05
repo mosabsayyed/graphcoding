@@ -26,6 +26,10 @@ Being straight about prior art:
 
 If you only want the photograph, close this tab and use a code-map tool. GraphCoding is for making the repo *become* something on purpose — which is exactly the discipline AI agents are missing.
 
+## GraphContext: the same cure for your agent's boot
+
+The other monolith rotting in your repo is the agent instructions file — CLAUDE.md / AGENTS.md — where laws, project status, recipes, and dispatch tables share one file and no lifecycle. `graphcoding ctx` applies the identical discipline to context: `ctx cleanse` audits the monolith (what's constitution, what's state, what's a skill, what's trigger data), your memory index becomes a graph *in place* (same filename, JSONL lines under a markdown header), and `ctx boot` assembles each session's starting context as a **query** — cornerstones, live rules, genuinely-open work, owed memories — in a few hundred tokens. Retire a practice with one status flip and no future boot ever recites it again. Ten verbs run both halves: [docs/graphcontext.md](docs/graphcontext.md).
+
 ## The missing piece, not the whole brain
 
 "Long-term memory for coding agents" is four different problems: **retrieval** (find things — search, embeddings), **episodic** (what happened and why — decision logs, session digests), **design-state** (what exists, what it's for, what it should become), and **verification** (what it must do — types, tests). Everyone already has three of them. The design-state layer is the one that lived in heads and stale diagrams — and it's the one whose absence makes agents edit blind and abandon refactors halfway.
@@ -132,6 +136,7 @@ The [playbooks](docs/playbooks.md) give the exact command sequence for each case
 | [The loop](docs/lifecycle.md) | QUERY → DESIGN → CODE → SYNC → VERIFY, in depth |
 | [Playbooks](docs/playbooks.md) | every SDLC situation, exact commands |
 | [The whole architecture](docs/whole-system-graph.md) | db schema, settings tables, MCP servers, queues, external APIs as graph nodes |
+| [GraphContext](docs/graphcontext.md) | the agent's boot context as a graph — cleanse the monolith, boot becomes a query |
 | [Migrating an existing repo](docs/migrating-existing-repos.md) | zero to gated in an afternoon |
 | [Starting a new project](docs/starting-new-projects.md) | graph-first greenfield |
 | [AI agents](docs/agents.md) | Claude Code, Cursor, Copilot, custom harnesses |

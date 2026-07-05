@@ -301,6 +301,85 @@ def cmd_show(args) -> None:
     _print_node(g, node)
 
 
+def _ctx_graph(args):
+    from .context import ContextGraph
+    path = args.file
+    if not path:
+        root = find_root(getattr(args, "root", None)) or os.getcwd()
+        path = os.path.join(root, GRAPH_DIR, "context.jsonl")
+    return ContextGraph.load(path)
+
+
+def cmd_ctx(args) -> None:
+    from .context import CTX_STATUSES, CTX_TYPES, cleanse
+    g = _ctx_graph(args)
+    cmd = args.ctx_cmd
+    if cmd == "add":
+        n = g.nodes.get(args.name, {"name": args.name})
+        n["type"] = args.type or n.get("type", "note")
+        n["status"] = n.get("status", "active")
+        if args.hook:
+            n["hook"] = args.hook
+        if args.load:
+            n["load"] = args.load
+        if args.cornerstone:
+            n["cornerstone"] = True
+        for spec in args.edge or []:
+            etype, target = spec.split(":", 1)
+            n.setdefault("edges", [])
+            if not any(e["to"] == target and e["type"] == etype.upper()
+                       for e in n["edges"]):
+                n["edges"].append({"to": target, "type": etype.upper()})
+        g.nodes[args.name] = n
+        g.save()
+        note = "" if not args.edge else "".join(
+            f"\n  edge -> {e['to']}" + ("  (owed — not written yet)"
+                                        if e["to"] not in g.nodes else "")
+            for e in n.get("edges", []))
+        print(f"ctx {n['status']}: {args.name} — {n.get('hook','')}{note}")
+    elif cmd in ("done", "retire"):
+        node = g.nodes.get(args.name)
+        if not node:
+            sys.exit(f"unknown context node {args.name}")
+        node["status"] = "done" if cmd == "done" else "retired"
+        g.save()
+        inc = g.incoming(args.name)
+        print(f"ctx {node['status']}: {args.name}"
+              + (f"  ({len(inc)} nodes still reference it — history keeps edges)"
+                 if inc else ""))
+    elif cmd == "query":
+        for n in g.search(args.terms):
+            print(f"{n['name']}  [{n.get('type','note')}/{n.get('status','active')}]"
+                  f" — {n.get('hook','')}")
+    elif cmd == "show":
+        n = g.nodes.get(args.name)
+        if not n:
+            hits = g.search([args.name], limit=5)
+            if len(hits) == 1:
+                n = hits[0]
+            else:
+                for h in hits:
+                    print("   " + h["name"])
+                sys.exit(1 if hits else f"no context node '{args.name}'")
+        print(json.dumps(n, indent=2, ensure_ascii=False, sort_keys=True))
+        for src, et in g.incoming(n["name"]):
+            print(f"  <-[{et}]- {src}")
+    elif cmd == "boot":
+        print(g.boot(role=args.role or "", task=args.task or ""))
+    elif cmd == "health":
+        print(g.health())
+    elif cmd == "status":
+        active = [n for n in g.nodes.values()
+                  if n.get("type") == "project" and n.get("status") == "active"]
+        print(f"context: {len(g.nodes)} nodes | active projects: {len(active)}")
+        for n in sorted(active, key=lambda n: n["name"]):
+            print(f"   ? {n['name']} — {n.get('hook','')}")
+        for t, srcs in sorted(g.owed().items()):
+            print(f"   owed: {t}  <- {len(srcs)}")
+    elif cmd == "cleanse":
+        print(cleanse(args.target))
+
+
 def cmd_hooks(args) -> None:
     root = _root_or_die(args)
     for p in hooks_mod.install(root):
@@ -387,6 +466,28 @@ def build_parser() -> argparse.ArgumentParser:
 
     s = sub.add_parser("hooks", help="install pre-commit gate + post-commit sync")
     s.set_defaults(func=cmd_hooks)
+
+    s = sub.add_parser("ctx", help="GraphContext: the agent's boot context as a graph")
+    s.add_argument("--file", help="context graph file (default .graphcoding/context.jsonl; "
+                                  "point at your agent's MEMORY.md-style index)")
+    cs = s.add_subparsers(dest="ctx_cmd", required=True)
+    c = cs.add_parser("add", help="add/update a context node")
+    c.add_argument("name"); c.add_argument("--hook", "-s")
+    c.add_argument("--type", "-t", help="rule|project|reference|user|note|skill|trigger")
+    c.add_argument("--load", help="always | role=<r> | task=<t> | demand")
+    c.add_argument("--cornerstone", action="store_true")
+    c.add_argument("--edge", "-e", action="append", help="TYPE:target (repeatable)")
+    c = cs.add_parser("done", help="work closed — flip status");  c.add_argument("name")
+    c = cs.add_parser("retire", help="superseded/dead — stops loading"); c.add_argument("name")
+    c = cs.add_parser("query", help="search hooks");  c.add_argument("terms", nargs="+")
+    c = cs.add_parser("show", help="one node + who references it"); c.add_argument("name")
+    c = cs.add_parser("boot", help="assemble a session's starting context (the walker)")
+    c.add_argument("--role"); c.add_argument("--task")
+    cs.add_parser("health", help="orphans, hookless, owed, retired-but-cited")
+    cs.add_parser("status", help="active work + owed memories")
+    c = cs.add_parser("cleanse", help="audit a monolith (CLAUDE.md/AGENTS.md): what stays, what moves")
+    c.add_argument("target")
+    s.set_defaults(func=cmd_ctx)
     return p
 
 

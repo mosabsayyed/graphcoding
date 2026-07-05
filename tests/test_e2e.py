@@ -264,6 +264,54 @@ def test_environments_and_open_edge_types(repo, capsys):
     assert "READ-ONLY" in out and "PROMOTES_TO" in out and "DEPLOYED_IN" in out
 
 
+def test_graphcontext_loop(repo, capsys, tmp_path):
+    run(repo, "init")
+    cf = str(tmp_path / "ctx.jsonl")
+    run(repo, "ctx", "--file", cf, "add", "rule_evidence", "-t", "rule",
+        "--hook", "No done-claims without pasted output", "--load", "always")
+    run(repo, "ctx", "--file", cf, "add", "proj_launch", "-t", "project",
+        "--hook", "Ship v1", "-e", "REFERENCES:rule_evidence",
+        "-e", "REFERENCES:ref_unwritten")
+    run(repo, "ctx", "--file", cf, "add", "old_ritual", "-t", "rule",
+        "--hook", "Check the mailbox")
+    run(repo, "ctx", "--file", cf, "retire", "old_ritual")
+    capsys.readouterr()
+    run(repo, "ctx", "--file", cf, "boot", expect_exit=0)
+    out = capsys.readouterr().out
+    assert "rule_evidence" in out            # always-load appears
+    assert "proj_launch" in out              # active work appears
+    assert "old_ritual" not in out           # retired never loads
+    assert "ref_unwritten" in out            # owed memory surfaces
+    run(repo, "ctx", "--file", cf, "done", "proj_launch")
+    capsys.readouterr()
+    run(repo, "ctx", "--file", cf, "boot")
+    assert "proj_launch" not in capsys.readouterr().out
+    run(repo, "ctx", "--file", cf, "health", expect_exit=0)
+
+
+def test_ctx_cleanse_classifies(repo, capsys, tmp_path):
+    md = tmp_path / "CLAUDE.md"
+    md.write_text(
+        "# Rules\nAlways verify before claiming done.\n\n"
+        "## Status\nDeployed 2026-07-02, prompts v29 active, 134 KPIs pending.\n\n"
+        "## Dispatch\n| about to | first |\n|---|---|\n| edit prompt | load skill |\n\n"
+        "## Steps\n1. query\n2. plan\n3. code\n")
+    capsys.readouterr()
+    run(repo, "ctx", "cleanse", str(md), expect_exit=0)
+    out = capsys.readouterr().out
+    assert "CONSTITUTION (1)" in out and "STATE (1)" in out
+    assert "TRIGGER (1)" in out and "PROCEDURE (1)" in out
+
+
+def test_ctx_preserves_markdown_header(repo, tmp_path):
+    cf = str(tmp_path / "MEMORY.md")
+    open(cf, "w").write("# My memory — THIS FILE IS THE GRAPH\n\nrules here\n")
+    run(repo, "ctx", "--file", cf, "add", "n1", "--hook", "hello")
+    content = open(cf).read()
+    assert content.startswith("# My memory")
+    assert '"n1"' in content
+
+
 def test_graph_file_is_sorted_and_stable(repo):
     run(repo, "init")
     p = os.path.join(repo, ".graphcoding", "graph.jsonl")

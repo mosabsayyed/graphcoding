@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "graphcoding"
-version = "0.4.0"
+version = "0.5.0"
 description = "Draw the graph of the system you want — then code until the repo matches. Future files and scheduled deletions are graph data; a drift gate blocks commits until code and declared design converge."
 readme = "README.md"
 requires-python = ">=3.9"
