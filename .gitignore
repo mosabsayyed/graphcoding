@@ -7,3 +7,4 @@ build/
 .venv/
 # derived accelerators (see docs/scaling.md) — never canonical
 .graphcoding/embeddings.jsonl
+.venv/

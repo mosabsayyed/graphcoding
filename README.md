@@ -1,17 +1,28 @@
 # GraphCoding
 
-**Your repo's living knowledge graph — the design contract humans and AI agents code against.**
+**Don't map your code into a graph. Draw the graph of the system you *want* — then code until the repo matches. Nothing commits while they disagree.**
 
 [![CI](https://github.com/mosabsayyed/graphcoding/actions/workflows/ci.yml/badge.svg)](https://github.com/mosabsayyed/graphcoding/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](pyproject.toml)
 [![zero dependencies](https://img.shields.io/badge/dependencies-0-brightgreen.svg)](pyproject.toml)
 
-AI agents write most of the code now. And they all fail the same way: they **edit blind** (change a function without knowing who calls it), they **drift** (the plan says one thing, the code says another, nobody notices until it breaks), and they **forget** (every session starts from zero and re-derives the architecture — differently each time).
+Everyone turns code into graphs — IDE indexes, Sourcegraph, dependency visualizers, RAG pipelines over ASTs. All of them point the arrow the same way: **code → graph**. The graph is a photograph of what you already built. It can answer questions; it cannot want anything.
 
-GraphCoding fixes this with one move: **keep a knowledge graph of your codebase inside the repo, and make it the source of truth for every change.** Files, functions, and components are nodes. Imports and calls are edges. Design intent is a `planned` node *before* the code exists. Deletions are marked *before* the file is removed. A drift gate blocks any commit where code and graph disagree.
+GraphCoding points the arrow the other way: **graph → code**.
 
-The graph is a plain sorted-JSONL file. It diffs in pull requests, merges cleanly, needs no server, and works with any language and any agent.
+Design means editing the graph's **end state** before any code exists: nodes for files not yet written (`planned`, each with a one-line statement of intent), death marks on files that must go (`to-be-deleted`), edges for wiring that doesn't exist yet. That future-state graph is a versioned file in your repo. Then you — or your AI agents — code toward it, and a drift gate **blocks every commit until the working tree and the declared graph become the same statement.**
+
+The photograph becomes a blueprint with an enforcement clause. "Done" stops being an opinion: it's the moment `graphcoding drift` prints `DRIFT=NONE` and nothing planned remains unbuilt.
+
+## What's actually new here (and what isn't)
+
+Being straight about prior art:
+
+- **Not new:** extracting a graph *from* code. Dozens of tools do it; ours is deliberately the boring part of this repo.
+- **New:** the graph as a **forward contract**. We know of no tool or methodology where (1) *future* files and *scheduled deletions* are first-class graph data, (2) design review happens as a **graph diff in a PR before the code exists**, (3) completion is **mechanical convergence** between declared state and disk, enforced at the commit boundary, and (4) the design itself has git history — you can `blame` an architecture decision.
+
+If you only want the photograph, close this tab and use a code-map tool. GraphCoding is for making the repo *become* something on purpose — which is exactly the discipline AI agents are missing.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐

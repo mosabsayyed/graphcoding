@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "graphcoding"
 version = "0.1.0"
-description = "Your repo's living knowledge graph — the design contract humans and AI agents code against. Query, plan, sync, and gate commits on drift."
+description = "Draw the graph of the system you want — then code until the repo matches. Future files and scheduled deletions are graph data; a drift gate blocks commits until code and declared design converge."
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
