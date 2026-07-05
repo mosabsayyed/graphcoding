@@ -7,6 +7,8 @@
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](pyproject.toml)
 [![zero dependencies](https://img.shields.io/badge/dependencies-0-brightgreen.svg)](pyproject.toml)
 
+![GraphCoding at a glance — the loop, the inversion, the four memory layers, and the SDLC playbooks](assets/graphcoding-overview.png)
+
 Everyone turns code into graphs — IDE indexes, Sourcegraph, dependency visualizers, RAG pipelines over ASTs. All of them point the arrow the same way: **code → graph**. The graph is a photograph of what you already built. It can answer questions; it cannot want anything.
 
 GraphCoding points the arrow the other way: **graph → code**.

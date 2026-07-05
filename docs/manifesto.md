@@ -1,5 +1,7 @@
 # The GraphCoding Manifesto
 
+![The manifesto at a glance — why agents fail without a system model, the three commitments, and the bet](../assets/graphcoding-manifesto.png)
+
 ## The problem is not that AI writes bad code
 
 The problem is that AI writes code **without a durable model of the system it is changing.**

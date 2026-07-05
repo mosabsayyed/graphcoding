@@ -1,6 +1,6 @@
 {"language": "yaml", "name": ".github/workflows/ci.yml", "status": "ok", "summary": "CI: pytest on 3.9+3.12, then the dogfood drift gate on this repo's own graph", "type": "ConfigFile"}
 {"language": "markdown", "name": "CONTRIBUTING.md", "status": "ok", "summary": "Contributing", "type": "Doc"}
-{"edges": [{"to": "docs/memory-architecture.md", "type": "REFERENCES"}], "language": "markdown", "name": "README.md", "status": "ok", "summary": "GraphCoding", "type": "Doc"}
+{"language": "markdown", "name": "README.md", "status": "ok", "summary": "GraphCoding", "type": "Doc"}
 {"edges": [{"to": "skill/graphcoding/SKILL.md", "type": "REFERENCES"}], "language": "markdown", "name": "docs/agents.md", "status": "ok", "summary": "GraphCoding for AI agents", "type": "Doc"}
 {"edges": [{"to": "src/graphcoding/store.py", "type": "REFERENCES"}], "language": "markdown", "name": "docs/core-concepts.md", "status": "ok", "summary": "Core concepts", "type": "Doc"}
 {"edges": [{"to": "src/graphcoding/drift.py", "type": "REFERENCES"}], "language": "markdown", "name": "docs/drift.md", "status": "ok", "summary": "Drift — detection and enforcement", "type": "Doc"}
