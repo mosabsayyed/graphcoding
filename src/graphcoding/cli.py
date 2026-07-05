@@ -49,11 +49,17 @@ def _print_node(g: Graph, node: Node, verbose: bool = True) -> None:
                 print(f"    -[{e['type']}]-> {e['to']}{missing}")
         incoming = g.incoming(node.name)
         if incoming:
-            print("  incoming (blast radius — these break if you change it):")
+            print("  recorded incoming edges (blast radius — these break if you change it):")
             for src, etype in incoming:
                 print(f"    <-[{etype}]- {src}")
+            if all(etype in ("IMPORTS", "CONTAINS") for _, etype in incoming):
+                print("    (scanner-visible edges only; runtime/cross-boundary callers"
+                      " may exist unrecorded — record with: graphcoding link <src> CALLS"
+                      f" {node.name})")
         elif not node.name.endswith((".md", ".json")):
-            print("  incoming: none (safe-to-change candidate — verify runtime refs)")
+            print("  recorded incoming edges: none — likely safe to change, but the"
+                  " graph only knows recorded edges; verify runtime refs once, then"
+                  " record them")
 
 
 # ---------------------------------------------------------------- commands --
@@ -230,6 +236,27 @@ def cmd_status(args) -> None:
     print(f"\ndrift: {'NONE' if not n_block else f'{n_block} blocking — run `graphcoding drift`'}")
 
 
+def cmd_summary(args) -> None:
+    root = _root_or_die(args)
+    g = Graph.load(root)
+    node = g.nodes.get(args.name)
+    if not node:
+        sys.exit(f"unknown node {args.name} (scan or plan it first)")
+    node.summary = args.text
+    if node.status == "needs-analysis":
+        node.status = "ok"
+    g.save()
+    print(f"summary set: {args.name} — {args.text}")
+
+
+def cmd_health(args) -> None:
+    from .health import compute_health, format_health
+    root = _root_or_die(args)
+    cfg = load_config(root)
+    g = Graph.load(root)
+    print(format_health(compute_health(root, cfg, g)))
+
+
 def cmd_query(args) -> None:
     root = _root_or_die(args)
     g = Graph.load(root)
@@ -323,6 +350,14 @@ def build_parser() -> argparse.ArgumentParser:
 
     s = sub.add_parser("status", help="planned work, dangling edges, drift summary")
     s.set_defaults(func=cmd_status)
+
+    s = sub.add_parser("health", help="memory quality: coverage, stale summaries, orphans")
+    s.set_defaults(func=cmd_health)
+
+    s = sub.add_parser("summary", help="set/replace a node's one-line intent")
+    s.add_argument("name")
+    s.add_argument("text")
+    s.set_defaults(func=cmd_summary)
 
     s = sub.add_parser("query", help="search nodes by name + summary (QUERY)")
     s.add_argument("terms", nargs="+")

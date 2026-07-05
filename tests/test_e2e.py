@@ -164,6 +164,48 @@ def test_hooks_install_and_gate(repo, capsys):
     assert "graphcoding drift --staged" in open(pre).read()
 
 
+def test_health_reports_quality(repo, capsys):
+    run(repo, "init")
+    # a file with no docstring at all -> no summary
+    with open(os.path.join(repo, "src", "bare.py"), "w") as f:
+        f.write("x = 1\n")
+    run(repo, "sync", "--files", "src/bare.py")
+    capsys.readouterr()
+    run(repo, "health", expect_exit=0)
+    out = capsys.readouterr().out
+    assert "no summary" in out and "src/bare.py" in out
+    # stale suspect: docstring moves on, stored summary doesn't
+    g = Graph.load(repo)
+    g.nodes["src/db.py"].summary = "Old description nobody updated"
+    g.save()
+    with open(os.path.join(repo, "src", "db.py"), "w") as f:
+        f.write('"""Totally rewritten storage engine."""\n\ndef get():\n    return 2\n')
+    run(repo, "health", expect_exit=0)
+    out = capsys.readouterr().out
+    assert "stale-summary suspects" in out and "src/db.py" in out
+
+
+def test_summary_command(repo, capsys):
+    run(repo, "init")
+    run(repo, "summary", "src/db.py", "The only module that owns the connection")
+    g = Graph.load(repo)
+    assert g.nodes["src/db.py"].summary == "The only module that owns the connection"
+
+
+def test_show_discloses_recorded_only(repo, capsys):
+    run(repo, "init")
+    capsys.readouterr()
+    run(repo, "show", "src/db.py")   # only IMPORTS edges recorded
+    out = capsys.readouterr().out
+    assert "recorded incoming edges" in out
+    assert "scanner-visible edges only" in out
+    # after recording an intent edge, the caveat drops
+    run(repo, "link", "src/app.py", "CALLS", "src/db.py")
+    capsys.readouterr()
+    run(repo, "show", "src/db.py")
+    assert "scanner-visible edges only" not in capsys.readouterr().out
+
+
 def test_graph_file_is_sorted_and_stable(repo):
     run(repo, "init")
     p = os.path.join(repo, ".graphcoding", "graph.jsonl")

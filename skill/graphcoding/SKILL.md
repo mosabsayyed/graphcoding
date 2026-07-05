@@ -85,3 +85,10 @@ graphcoding drift           # re-check; must print DRIFT=NONE
 | reconcile after changes | `graphcoding sync --staged` (or `--files`, `--commit`) |
 | task list / work state | `graphcoding status` |
 | the done-check | `graphcoding drift` → `DRIFT=NONE` |
+| memory quality (stale summaries, orphans) | `graphcoding health` |
+
+Blast-radius honesty: `show` lists **recorded** edges. If it prints the
+"scanner-visible edges only" caveat, runtime/cross-boundary callers may exist
+unrecorded — verify once, then `graphcoding link` what you find so the next
+session inherits it. When `health` lists a stale-summary suspect for a file you
+are touching, fix the summary in the same change.

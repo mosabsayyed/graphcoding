@@ -24,6 +24,12 @@ Being straight about prior art:
 
 If you only want the photograph, close this tab and use a code-map tool. GraphCoding is for making the repo *become* something on purpose — which is exactly the discipline AI agents are missing.
 
+## The missing piece, not the whole brain
+
+"Long-term memory for coding agents" is four different problems: **retrieval** (find things — search, embeddings), **episodic** (what happened and why — decision logs, session digests), **design-state** (what exists, what it's for, what it should become), and **verification** (what it must do — types, tests). Everyone already has three of them. The design-state layer is the one that lived in heads and stale diagrams — and it's the one whose absence makes agents edit blind and abandon refactors halfway.
+
+GraphCoding is that layer, with a gate on it — and only that layer, on purpose. [docs/memory-architecture.md](docs/memory-architecture.md) maps all four, the exact boundaries, and which of this tool's known limits belong to which neighbor. Structure the graph defends mechanically; meaning it *surveils* instead: `graphcoding health` reports summary coverage, stale-summary suspects, orphan nodes, and how much hand-recorded intent the graph actually carries.
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                     The GraphCoding loop                     │
@@ -121,6 +127,7 @@ The [playbooks](docs/playbooks.md) give the exact command sequence for each case
 | | |
 |---|---|
 | [Manifesto](docs/manifesto.md) | why coding against a graph beats coding against files |
+| [Memory architecture](docs/memory-architecture.md) | the four memory layers agents need; where this one sits |
 | [Core concepts](docs/core-concepts.md) | nodes, edges, statuses, the graph file format |
 | [The loop](docs/lifecycle.md) | QUERY → DESIGN → CODE → SYNC → VERIFY, in depth |
 | [Playbooks](docs/playbooks.md) | every SDLC situation, exact commands |
